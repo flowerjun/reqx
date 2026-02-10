@@ -8,6 +8,7 @@ import { Button } from '../ui/button'
 import { ScrollArea } from '../ui/scroll-area'
 import { Label } from '../ui/label'
 import type { EditorLanguage } from '@/lib/codemirror-setup'
+import { copyToClipboard } from '../../lib/clipboard'
 
 interface ResponseViewerProps {
   response: ApiResponsePayload
@@ -68,7 +69,7 @@ export function ResponseViewer({ response }: ResponseViewerProps) {
   })()
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(formattedBody)
+    await copyToClipboard(formattedBody)
     setCopied(true)
     setTimeout(() => setCopied(false), 1500)
   }

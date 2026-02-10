@@ -3,6 +3,7 @@ import { Copy, Check } from 'lucide-react'
 import { CodeEditor } from '../shared/CodeEditor'
 import { Button } from '../ui/button'
 import { Label } from '../ui/label'
+import { copyToClipboard } from '../../lib/clipboard'
 
 interface TypeOutputProps {
   value: string
@@ -13,7 +14,7 @@ export function TypeOutput({ value }: TypeOutputProps) {
 
   const handleCopy = async () => {
     if (!value) return
-    await navigator.clipboard.writeText(value)
+    await copyToClipboard(value)
     setCopied(true)
     setTimeout(() => setCopied(false), 1500)
   }

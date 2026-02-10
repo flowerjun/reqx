@@ -44,6 +44,22 @@ export async function attachDebugger(tabId: number): Promise<void> {
 
   try {
     await chrome.debugger.attach({ tabId }, '1.3')
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    if (msg.includes('Another debugger is already attached')) {
+      // Detach the stale debugger and retry once
+      console.warn(`[ReqX] Debugger already attached to tab ${tabId}, detaching and retrying`)
+      try {
+        await chrome.debugger.detach({ tabId })
+      } catch { /* ignore detach errors */ }
+      await chrome.debugger.attach({ tabId }, '1.3')
+    } else {
+      console.error('[ReqX] Failed to attach debugger:', err)
+      return
+    }
+  }
+
+  try {
     await chrome.debugger.sendCommand({ tabId }, 'Fetch.enable', {
       patterns: [{ urlPattern: '*', requestStage: 'Request' }],
     })
@@ -51,7 +67,7 @@ export async function attachDebugger(tabId: number): Promise<void> {
     console.log(`[ReqX] Debugger attached for tab ${tabId}`)
     sendToPanel(tabId, { type: 'DEBUGGER_ATTACHED' })
   } catch (err) {
-    console.error('[ReqX] Failed to attach debugger:', err)
+    console.error('[ReqX] Failed to enable Fetch domain:', err)
   }
 }
 
