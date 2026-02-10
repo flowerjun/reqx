@@ -1,0 +1,42 @@
+{
+  "manifest_version": 3,
+  "name": "ReqX",
+  "description": "Exchange your requests — All-in-one developer toolkit for API intercept, mock, client, and type extraction in DevTools.",
+  "version": "0.1.0",
+  "minimum_chrome_version": "116",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "action": {
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png"
+    },
+    "default_title": "ReqX"
+  },
+  "devtools_page": "devtools.html",
+  "background": {
+    "service_worker": "service-worker.js",
+    "type": "module"
+  },
+  "permissions": [
+    "debugger",
+    "storage",
+    "cookies",
+    "declarativeNetRequest",
+    "declarativeNetRequestFeedback"
+  ],
+  "host_permissions": ["<all_urls>"],
+  "content_scripts": [{
+    "matches": ["<all_urls>"],
+    "js": ["content-script.js"],
+    "run_at": "document_idle"
+  }],
+  "declarative_net_request": {
+    "rule_resources": []
+  }
+}

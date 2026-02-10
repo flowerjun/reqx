@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7C3AED"/>
+      <stop offset="100%" stop-color="#06B6D4"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="400" height="400" fill="#111118" rx="32"/>
+
+  <!-- Outer diamond (square rotated 45deg) -->
+  <rect x="130" y="130" width="140" height="140" rx="4" fill="none" stroke="#7C3AED" stroke-width="2" opacity="0.25" transform="rotate(45 200 200)"/>
+
+  <!-- X formed by two rounded lines -->
+  <line x1="140" y1="140" x2="260" y2="260" stroke="url(#g1)" stroke-width="6" stroke-linecap="round"/>
+  <line x1="260" y1="140" x2="140" y2="260" stroke="url(#g1)" stroke-width="6" stroke-linecap="round"/>
+
+  <!-- 4 symmetric dots at X endpoints -->
+  <circle cx="140" cy="140" r="8" fill="#7C3AED"/>
+  <circle cx="260" cy="140" r="8" fill="#06B6D4"/>
+  <circle cx="140" cy="260" r="8" fill="#06B6D4"/>
+  <circle cx="260" cy="260" r="8" fill="#7C3AED"/>
+
+  <!-- Center dot -->
+  <circle cx="200" cy="200" r="10" fill="#FFFFFF"/>
+</svg>
