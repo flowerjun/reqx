@@ -75,7 +75,7 @@ pnpm build
 
 ### Interceptor - 요청 차단, 지연, 리다이렉트
 
-<img src="interceptor-view.png" alt="Interceptor View" width="720" />
+<img src="images/interceptor-view.png" alt="Interceptor View" width="720" />
 
 HTTP 요청의 동작을 제어하는 규칙을 만들 수 있습니다:
 
@@ -90,7 +90,7 @@ HTTP 요청의 동작을 제어하는 규칙을 만들 수 있습니다:
 
 ### API Client - DevTools에서 바로 요청 보내기
 
-<img src="api-client-view.png" alt="API Client View" width="720" />
+<img src="images/api-client-view.png" alt="API Client View" width="720" />
 
 Postman과 유사한 내장 HTTP 클라이언트입니다:
 
@@ -106,11 +106,11 @@ Postman과 유사한 내장 HTTP 클라이언트입니다:
 
 ### Mocking - API 응답 모킹
 
-<img src="mocking-view.png" alt="Mocking View" width="720" />
+<img src="images/mocking-view.png" alt="Mocking View" width="720" />
 
 실제 서버 없이 커스텀 응답을 반환합니다:
 
-<img src="mock-rule-editor.png" alt="Mock Rule Editor" width="720" />
+<img src="images/mock-rule-editor.png" alt="Mock Rule Editor" width="720" />
 
 - **상태 코드**, **지연 시간**, **바디 타입** (JSON / Text / HTML), **응답 헤더** 설정 가능
 - 모킹 규칙은 인터셉트 규칙보다 **먼저** 평가됩니다
@@ -140,7 +140,7 @@ Postman과 유사한 내장 HTTP 클라이언트입니다:
 
 ### Collections - API 요청 저장 및 관리
 
-<img src="collections-view.png" alt="Collections View" width="720" />
+<img src="images/collections-view.png" alt="Collections View" width="720" />
 
 - API Client 요청을 컬렉션(폴더)으로 저장
 - **환경변수**: `{{BASE_URL}}` 같은 변수를 정의하고 Development / Staging / Production 간 전환
@@ -148,7 +148,7 @@ Postman과 유사한 내장 HTTP 클라이언트입니다:
 
 ### Type Extractor - JSON to TypeScript 변환
 
-<img src="type-extractor-view.png" alt="Type Extractor View" width="720" />
+<img src="images/type-extractor-view.png" alt="Type Extractor View" width="720" />
 
 JSON을 붙여넣으면 TypeScript 인터페이스를 즉시 생성합니다:
 
@@ -160,7 +160,7 @@ JSON을 붙여넣으면 TypeScript 인터페이스를 즉시 생성합니다:
 
 ### Settings
 
-<img src="settings-view.png" alt="Settings View" width="720" />
+<img src="images/settings-view.png" alt="Settings View" width="720" />
 
 - **테마**: Light, Dark, System (OS 설정에 따라 자동 전환)
 - **페이지 오버레이**: 규칙이 활성화되었을 때 페이지 내 오버레이 표시/숨기기

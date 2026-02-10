@@ -75,7 +75,7 @@ Then load the `dist/` folder in `chrome://extensions` as described above.
 
 ### Interceptor - Block, Delay, Redirect Requests
 
-<img src="interceptor-view.png" alt="Interceptor View" width="720" />
+<img src="images/interceptor-view.png" alt="Interceptor View" width="720" />
 
 Create rules to control how HTTP requests behave:
 
@@ -90,7 +90,7 @@ Each rule has its own toggle, plus a global on/off switch for the entire interce
 
 ### API Client - Send Requests Without Leaving DevTools
 
-<img src="api-client-view.png" alt="API Client View" width="720" />
+<img src="images/api-client-view.png" alt="API Client View" width="720" />
 
 A built-in HTTP client similar to Postman:
 
@@ -106,11 +106,11 @@ Runs through the extension's service worker, so **there are no CORS restrictions
 
 ### Mocking - Fake API Responses
 
-<img src="mocking-view.png" alt="Mocking View" width="720" />
+<img src="images/mocking-view.png" alt="Mocking View" width="720" />
 
 Return custom responses without a real server:
 
-<img src="mock-rule-editor.png" alt="Mock Rule Editor" width="720" />
+<img src="images/mock-rule-editor.png" alt="Mock Rule Editor" width="720" />
 
 - Set **status code**, **delay**, **body type** (JSON / Text / HTML), and **response headers**
 - Mock rules are evaluated **before** intercept rules
@@ -140,7 +140,7 @@ Useful for injecting auth tokens, adding debug headers, removing cookies, or set
 
 ### Collections - Save and Organize API Requests
 
-<img src="collections-view.png" alt="Collections View" width="720" />
+<img src="images/collections-view.png" alt="Collections View" width="720" />
 
 - Save API Client requests into named collections (folders)
 - **Environments**: Define variables like `{{BASE_URL}}` and switch between Development / Staging / Production
@@ -148,7 +148,7 @@ Useful for injecting auth tokens, adding debug headers, removing cookies, or set
 
 ### Type Extractor - JSON to TypeScript
 
-<img src="type-extractor-view.png" alt="Type Extractor View" width="720" />
+<img src="images/type-extractor-view.png" alt="Type Extractor View" width="720" />
 
 Paste any JSON and get TypeScript interfaces instantly:
 
@@ -160,7 +160,7 @@ Paste any JSON and get TypeScript interfaces instantly:
 
 ### Settings
 
-<img src="settings-view.png" alt="Settings View" width="720" />
+<img src="images/settings-view.png" alt="Settings View" width="720" />
 
 - **Theme**: Light, Dark, or System (auto-detects OS preference)
 - **Page Overlay**: Show/hide the in-page overlay when rules are active
