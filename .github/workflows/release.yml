@@ -37,7 +37,7 @@ jobs:
         run: pnpm build
 
       - name: Create zip
-        run: zip -r reqx-v${{ inputs.version }}.zip dist/
+        run: zip -r reqx-v${{ inputs.version }}.zip ReqX/
 
       - name: Create draft release
         env:

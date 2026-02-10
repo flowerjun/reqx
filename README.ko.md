@@ -52,7 +52,7 @@
 4. `chrome://extensions` 접속
 5. 우측 상단 **개발자 모드** 활성화
 6. **압축해제된 확장 프로그램을 로드합니다** 클릭
-7. 압축 해제한 `dist/` 폴더 선택
+7. 압축 해제한 `ReqX/` 폴더 선택
 
 ### 소스에서 빌드
 
@@ -61,7 +61,7 @@ pnpm install
 pnpm build
 ```
 
-이후 위 안내대로 `chrome://extensions`에서 `dist/` 폴더를 로드합니다.
+이후 위 안내대로 `chrome://extensions`에서 `ReqX/` 폴더를 로드합니다.
 
 ### DevTools에서 열기
 

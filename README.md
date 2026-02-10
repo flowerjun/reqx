@@ -52,7 +52,7 @@ These tasks typically require switching between multiple tools. **ReqX brings th
 4. Navigate to `chrome://extensions`
 5. Enable **Developer mode** (top right toggle)
 6. Click **Load unpacked**
-7. Select the unzipped `dist/` folder
+7. Select the unzipped `ReqX/` folder
 
 ### Build from Source
 
@@ -61,7 +61,7 @@ pnpm install
 pnpm build
 ```
 
-Then load the `dist/` folder in `chrome://extensions` as described above.
+Then load the `ReqX/` folder in `chrome://extensions` as described above.
 
 ### Open in DevTools
 
