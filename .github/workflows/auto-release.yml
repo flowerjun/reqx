@@ -1,0 +1,64 @@
+name: Auto Draft Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  draft-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Get version and sha
+        id: meta
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          TAG="v${VERSION}-${SHORT_SHA}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "short_sha=$SHORT_SHA" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "zip_name=reqx-${TAG}.zip" >> "$GITHUB_OUTPUT"
+
+      - name: Create zip
+        run: zip -r ${{ steps.meta.outputs.zip_name }} ReqX/
+
+      - name: Delete existing draft with same tag (if any)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release delete "${{ steps.meta.outputs.tag }}" --yes 2>/dev/null || true
+          git push origin --delete "refs/tags/${{ steps.meta.outputs.tag }}" 2>/dev/null || true
+
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ steps.meta.outputs.tag }}" \
+            --title "ReqX ${{ steps.meta.outputs.tag }}" \
+            --draft \
+            --generate-notes \
+            "${{ steps.meta.outputs.zip_name }}"
