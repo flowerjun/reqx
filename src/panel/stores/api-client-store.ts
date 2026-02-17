@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import type { KeyValuePair } from '@/shared/types/intercept-rule'
-import type { AuthConfig } from '@/shared/types/api-request'
+import type { AuthConfig, SavedRequest } from '@/shared/types/api-request'
 import type { ApiResponsePayload } from '@/shared/types/messages'
 import type { AuthType, BodyType, HttpMethod } from '@/shared/constants'
 
@@ -15,10 +15,13 @@ interface ApiClientState {
   authConfig: AuthConfig
   preRequestScript: string
   postResponseScript: string
+  withCredentials: boolean
   loading: boolean
   response: ApiResponsePayload | null
   error: string | null
   activeRequestId: string | null
+  loadedFromCollectionId: string | null
+  loadedFromRequestId: string | null
 
   setMethod: (method: HttpMethod) => void
   setUrl: (url: string) => void
@@ -30,10 +33,12 @@ interface ApiClientState {
   setAuthConfig: (config: AuthConfig) => void
   setPreRequestScript: (script: string) => void
   setPostResponseScript: (script: string) => void
+  setWithCredentials: (withCredentials: boolean) => void
   setLoading: (loading: boolean) => void
   setResponse: (response: ApiResponsePayload | null) => void
   setError: (error: string | null) => void
   setActiveRequestId: (id: string | null) => void
+  loadRequest: (request: SavedRequest) => void
   reset: () => void
 }
 
@@ -48,10 +53,13 @@ const initialState = {
   authConfig: {},
   preRequestScript: '',
   postResponseScript: '',
+  withCredentials: false,
   loading: false,
   response: null,
   error: null,
   activeRequestId: null,
+  loadedFromCollectionId: null,
+  loadedFromRequestId: null,
 }
 
 export const useApiClientStore = create<ApiClientState>()((set) => ({
@@ -88,9 +96,33 @@ export const useApiClientStore = create<ApiClientState>()((set) => ({
   setAuthConfig: (authConfig) => set({ authConfig }),
   setPreRequestScript: (preRequestScript) => set({ preRequestScript }),
   setPostResponseScript: (postResponseScript) => set({ postResponseScript }),
+  setWithCredentials: (withCredentials) => set({ withCredentials }),
   setLoading: (loading) => set({ loading }),
   setResponse: (response) => set({ response }),
   setError: (error) => set({ error }),
   setActiveRequestId: (activeRequestId) => set({ activeRequestId }),
+  loadRequest: (request) => set({
+    method: request.method,
+    url: request.url,
+    queryParams: request.queryParams.length > 0
+      ? [...request.queryParams, { key: '', value: '', enabled: true }]
+      : [{ key: '', value: '', enabled: true }],
+    headers: request.headers.length > 0
+      ? [...request.headers, { key: '', value: '', enabled: true }]
+      : [{ key: '', value: '', enabled: true }],
+    bodyType: request.bodyType,
+    bodyContent: request.bodyContent,
+    authType: request.authType,
+    authConfig: request.authConfig,
+    preRequestScript: request.preRequestScript,
+    postResponseScript: request.postResponseScript,
+    withCredentials: request.withCredentials ?? false,
+    response: null,
+    error: null,
+    loading: false,
+    activeRequestId: null,
+    loadedFromCollectionId: request.collectionId,
+    loadedFromRequestId: request.id,
+  }),
   reset: () => set(initialState),
 }))

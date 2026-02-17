@@ -1,5 +1,6 @@
 import { ArrowDown, AlertCircle } from 'lucide-react'
 import { useApiClientStore } from '../../stores/api-client-store'
+import { useHistoryStore } from '../../stores/history-store'
 import { useBackgroundPort } from '../../hooks/use-background-port'
 import { RequestBuilder } from './RequestBuilder'
 import { QueryParamsEditor } from './QueryParamsEditor'
@@ -11,20 +12,56 @@ import { KeyValueTable } from '../shared/KeyValueTable'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import { Separator } from '../ui/separator'
 import type { BackgroundEvent } from '@/shared/types/messages'
+import type { HistoryEntry } from '@/shared/types/api-request'
 
 export function ApiClientView() {
   const store = useApiClientStore()
+  const addHistoryEntry = useHistoryStore((s) => s.addEntry)
 
   const handleEvent = (event: BackgroundEvent) => {
     if (event.type === 'API_RESPONSE' && event.requestId === store.activeRequestId) {
       store.setResponse(event.response)
       store.setLoading(false)
       store.setActiveRequestId(null)
+
+      const entry: HistoryEntry = {
+        id: crypto.randomUUID(),
+        method: store.method,
+        url: store.url,
+        headers: store.headers.filter((h) => h.key),
+        queryParams: store.queryParams.filter((p) => p.key),
+        bodyType: store.bodyType,
+        bodyContent: store.bodyContent,
+        authType: store.authType,
+        authConfig: store.authConfig,
+        withCredentials: store.withCredentials,
+        statusCode: event.response.statusCode,
+        duration: event.response.duration,
+        timestamp: Date.now(),
+      }
+      addHistoryEntry(entry)
     }
     if (event.type === 'API_ERROR' && event.requestId === store.activeRequestId) {
       store.setError(event.error)
       store.setLoading(false)
       store.setActiveRequestId(null)
+
+      const entry: HistoryEntry = {
+        id: crypto.randomUUID(),
+        method: store.method,
+        url: store.url,
+        headers: store.headers.filter((h) => h.key),
+        queryParams: store.queryParams.filter((p) => p.key),
+        bodyType: store.bodyType,
+        bodyContent: store.bodyContent,
+        authType: store.authType,
+        authConfig: store.authConfig,
+        withCredentials: store.withCredentials,
+        statusCode: null,
+        duration: null,
+        timestamp: Date.now(),
+      }
+      addHistoryEntry(entry)
     }
   }
 
@@ -49,6 +86,7 @@ export function ApiClientView() {
         bodyContent: store.bodyContent,
         authType: store.authType,
         authConfig: store.authConfig,
+        withCredentials: store.withCredentials,
       },
     })
   }

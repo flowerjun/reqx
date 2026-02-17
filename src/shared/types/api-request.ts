@@ -23,8 +23,26 @@ export interface SavedRequest {
   authConfig: AuthConfig
   preRequestScript: string
   postResponseScript: string
+  withCredentials?: boolean
+  order?: number
   createdAt: number
   updatedAt: number
+}
+
+export interface HistoryEntry {
+  id: string
+  method: HttpMethod
+  url: string
+  headers: KeyValuePair[]
+  queryParams: KeyValuePair[]
+  bodyType: BodyType
+  bodyContent: string
+  authType: AuthType
+  authConfig: AuthConfig
+  withCredentials?: boolean
+  statusCode: number | null
+  duration: number | null
+  timestamp: number
 }
 
 export interface Collection {

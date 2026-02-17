@@ -1,6 +1,6 @@
 export const PORT_NAME = 'reqx-panel'
 export const DB_NAME = 'reqx-db'
-export const DB_VERSION = 1
+export const DB_VERSION = 2
 
 export const HTTP_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'] as const
 export type HttpMethod = (typeof HTTP_METHODS)[number]

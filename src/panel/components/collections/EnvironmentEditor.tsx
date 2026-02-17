@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Plus, Trash2, Settings } from 'lucide-react'
-import type { Environment, EnvironmentVariable } from '@/shared/types/api-request'
+import type { EnvironmentVariable } from '@/shared/types/api-request'
 import { useCollectionStore } from '../../stores/collection-store'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
@@ -15,7 +15,6 @@ export function EnvironmentEditor() {
   const {
     environments,
     activeEnvironmentId,
-    addEnvironment,
     updateEnvironment,
     removeEnvironment,
     setActiveEnvironment,
@@ -24,18 +23,6 @@ export function EnvironmentEditor() {
   const [deleteId, setDeleteId] = useState<string | null>(null)
 
   const activeEnv = environments.find((e) => e.id === activeEnvironmentId)
-
-  const handleAddEnvironment = () => {
-    const env: Environment = {
-      id: crypto.randomUUID(),
-      name: `Environment ${environments.length + 1}`,
-      variables: [],
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    }
-    addEnvironment(env)
-    setActiveEnvironment(env.id)
-  }
 
   const handleAddVariable = () => {
     if (!activeEnv) return
@@ -84,10 +71,6 @@ export function EnvironmentEditor() {
             </Select>
           </div>
           <div className="flex items-end gap-1">
-            <Button variant="outline" size="sm" className="h-8 text-xs" onClick={handleAddEnvironment}>
-              <Plus className="h-3 w-3 mr-1" />
-              New
-            </Button>
             {activeEnv && (
               <Button
                 variant="outline"

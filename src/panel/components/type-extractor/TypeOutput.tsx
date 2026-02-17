@@ -21,7 +21,7 @@ export function TypeOutput({ value }: TypeOutputProps) {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between px-3 py-2 border-b">
+      <div className="flex items-center justify-between px-3 py-2 border-b shrink-0 min-h-10">
         <Label className="text-xs font-medium">TypeScript Output</Label>
         <Button
           variant="ghost"

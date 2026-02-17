@@ -36,6 +36,7 @@ export interface ApiRequestPayload {
   bodyContent: string
   authType: AuthType
   authConfig: AuthConfig
+  withCredentials?: boolean
 }
 
 // Service Worker -> Panel

@@ -72,7 +72,7 @@ export function InterceptorView() {
       <div ref={containerRef} className="flex flex-1 overflow-hidden">
         {/* Left panel: Rules + Network */}
         <div className="flex flex-1 flex-col overflow-hidden">
-          <Tabs defaultValue="rules" className="flex flex-1 flex-col">
+          <Tabs defaultValue="rules" className="flex flex-1 min-h-0 flex-col">
             <TabsList className="mx-4 mt-2 w-fit">
               <TabsTrigger value="rules" className="text-xs">
                 Rules ({rules.length})

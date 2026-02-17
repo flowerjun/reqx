@@ -1,8 +1,12 @@
-import { useState } from 'react'
-import { Plus, FolderOpen } from 'lucide-react'
+import { useState, useMemo } from 'react'
+import { Plus, FolderOpen, Search } from 'lucide-react'
 import { useCollectionStore } from '../../stores/collection-store'
+import { useApiClientStore } from '../../stores/api-client-store'
+import { useUiStore } from '../../stores/ui-store'
 import { CollectionTree } from './CollectionTree'
+import { CollectionSearch } from './CollectionSearch'
 import { EnvironmentEditor } from './EnvironmentEditor'
+import { HistoryList } from './HistoryList'
 import { ImportExportDialog } from './ImportExportDialog'
 import { EmptyState } from '../shared/EmptyState'
 import { Button } from '../ui/button'
@@ -16,13 +20,15 @@ import {
   DialogTitle,
 } from '../ui/dialog'
 import { Label } from '../ui/label'
-import type { Collection, SavedRequest } from '@/shared/types/api-request'
+import type { Collection, Environment, SavedRequest } from '@/shared/types/api-request'
 
 export function CollectionsView() {
-  const { collections, addCollection } = useCollectionStore()
+  const { collections, addCollection, environments, addEnvironment, setActiveEnvironment } = useCollectionStore()
   const [showNewDialog, setShowNewDialog] = useState(false)
   const [newName, setNewName] = useState('')
   const [newDesc, setNewDesc] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [activeTab, setActiveTab] = useState('collections')
 
   const handleCreateCollection = () => {
     if (!newName.trim()) return
@@ -40,9 +46,37 @@ export function CollectionsView() {
     setShowNewDialog(false)
   }
 
-  const handleSelectRequest = (_collectionId: string, _request: SavedRequest) => {
-    // Future: load request into API client or show details
+  const loadRequest = useApiClientStore((s) => s.loadRequest)
+  const setActivePanel = useUiStore((s) => s.setActivePanel)
+
+  const handleSelectRequest = (_collectionId: string, request: SavedRequest) => {
+    loadRequest(request)
+    setActivePanel('api-client')
   }
+
+  const filteredCollections = useMemo(() => {
+    if (!searchQuery.trim()) return collections
+    const q = searchQuery.toLowerCase()
+    return collections
+      .map((c) => {
+        const collectionMatches = c.name.toLowerCase().includes(q)
+        const matchingRequests = c.requests.filter(
+          (r) =>
+            r.name.toLowerCase().includes(q) ||
+            r.url.toLowerCase().includes(q) ||
+            r.method.toLowerCase().includes(q),
+        )
+        if (collectionMatches) return c
+        if (matchingRequests.length > 0) return { ...c, requests: matchingRequests }
+        return null
+      })
+      .filter((c): c is Collection => c !== null)
+  }, [collections, searchQuery])
+
+  const autoExpandIds = useMemo(() => {
+    if (!searchQuery.trim()) return undefined
+    return new Set(filteredCollections.map((c) => c.id))
+  }, [filteredCollections, searchQuery])
 
   return (
     <div className="flex h-full flex-col">
@@ -59,15 +93,41 @@ export function CollectionsView() {
       </div>
 
       {/* Main content */}
-      <Tabs defaultValue="collections" className="flex flex-1 flex-col overflow-hidden">
-        <TabsList className="mx-4 mt-2 w-fit">
-          <TabsTrigger value="collections" className="text-xs">
-            Collections ({collections.length})
-          </TabsTrigger>
-          <TabsTrigger value="environments" className="text-xs">
-            Environments
-          </TabsTrigger>
-        </TabsList>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-1 flex-col overflow-hidden">
+        <div className="flex items-center justify-between mx-4 mt-2">
+          <TabsList className="w-fit">
+            <TabsTrigger value="collections" className="text-xs">
+              Collections ({collections.length})
+            </TabsTrigger>
+            <TabsTrigger value="history" className="text-xs">
+              History
+            </TabsTrigger>
+            <TabsTrigger value="environments" className="text-xs">
+              Environments
+            </TabsTrigger>
+          </TabsList>
+          {activeTab === 'environments' && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 text-xs"
+              onClick={() => {
+                const env: Environment = {
+                  id: crypto.randomUUID(),
+                  name: `Environment ${environments.length + 1}`,
+                  variables: [],
+                  createdAt: Date.now(),
+                  updatedAt: Date.now(),
+                }
+                addEnvironment(env)
+                setActiveEnvironment(env.id)
+              }}
+            >
+              <Plus className="h-3 w-3 mr-1" />
+              New
+            </Button>
+          )}
+        </div>
 
         <TabsContent value="collections" className="flex-1 overflow-auto mt-0">
           {collections.length === 0 ? (
@@ -83,11 +143,28 @@ export function CollectionsView() {
               }
             />
           ) : (
-            <CollectionTree
-              collections={collections}
-              onSelectRequest={handleSelectRequest}
-            />
+            <>
+              <CollectionSearch value={searchQuery} onChange={setSearchQuery} />
+              {filteredCollections.length === 0 ? (
+                <EmptyState
+                  icon={Search}
+                  title="No results"
+                  description={`No collections or requests matching "${searchQuery}".`}
+                  className="py-8"
+                />
+              ) : (
+                <CollectionTree
+                  collections={filteredCollections}
+                  onSelectRequest={handleSelectRequest}
+                  autoExpandIds={autoExpandIds}
+                />
+              )}
+            </>
           )}
+        </TabsContent>
+
+        <TabsContent value="history" className="flex-1 overflow-auto mt-0">
+          <HistoryList />
         </TabsContent>
 
         <TabsContent value="environments" className="flex-1 overflow-auto mt-0">
@@ -97,7 +174,7 @@ export function CollectionsView() {
 
       {/* New collection dialog */}
       <Dialog open={showNewDialog} onOpenChange={setShowNewDialog}>
-        <DialogContent>
+        <DialogContent aria-describedby={undefined}>
           <DialogHeader>
             <DialogTitle>New Collection</DialogTitle>
           </DialogHeader>

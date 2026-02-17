@@ -2,12 +2,58 @@ import type { ApiRequestPayload, ApiResponsePayload } from '@/shared/types/messa
 
 const activeRequests = new Map<string, AbortController>()
 
+// Cookie session rule IDs use a separate high range to avoid conflicts with intercept DNR rules
+const COOKIE_RULE_BASE_ID = 900000
+let cookieRuleCounter = 0
+
+async function addCookieSessionRule(url: string, cookieHeader: string): Promise<number> {
+  const ruleId = COOKIE_RULE_BASE_ID + (++cookieRuleCounter % 1000)
+
+  await chrome.declarativeNetRequest.updateSessionRules({
+    addRules: [
+      {
+        id: ruleId,
+        priority: 1,
+        action: {
+          type: chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS,
+          requestHeaders: [
+            {
+              header: 'Cookie',
+              operation: chrome.declarativeNetRequest.HeaderOperation.SET,
+              value: cookieHeader,
+            },
+          ],
+        },
+        condition: {
+          urlFilter: url,
+          resourceTypes: [
+            chrome.declarativeNetRequest.ResourceType.XMLHTTPREQUEST,
+            chrome.declarativeNetRequest.ResourceType.OTHER,
+          ],
+        },
+      },
+    ],
+    removeRuleIds: [ruleId],
+  })
+
+  return ruleId
+}
+
+async function removeCookieSessionRule(ruleId: number): Promise<void> {
+  await chrome.declarativeNetRequest.updateSessionRules({
+    addRules: [],
+    removeRuleIds: [ruleId],
+  })
+}
+
 export async function executeApiRequest(
   requestId: string,
   payload: ApiRequestPayload,
 ): Promise<ApiResponsePayload> {
   const controller = new AbortController()
   activeRequests.set(requestId, controller)
+
+  let cookieRuleId: number | null = null
 
   try {
     // Build URL with query params
@@ -18,11 +64,11 @@ export async function executeApiRequest(
       }
     }
 
-    // Build headers
-    const headers = new Headers()
+    // Build headers as plain object
+    const headers: Record<string, string> = {}
     for (const h of payload.headers) {
       if (h.enabled && h.key) {
-        headers.set(h.key, h.value)
+        headers[h.key] = h.value
       }
     }
 
@@ -30,7 +76,7 @@ export async function executeApiRequest(
     switch (payload.authType) {
       case 'bearer':
         if (payload.authConfig.bearerToken) {
-          headers.set('Authorization', `Bearer ${payload.authConfig.bearerToken}`)
+          headers['Authorization'] = `Bearer ${payload.authConfig.bearerToken}`
         }
         break
       case 'basic':
@@ -38,24 +84,36 @@ export async function executeApiRequest(
           const creds = btoa(
             `${payload.authConfig.basicUsername}:${payload.authConfig.basicPassword ?? ''}`,
           )
-          headers.set('Authorization', `Basic ${creds}`)
+          headers['Authorization'] = `Basic ${creds}`
         }
         break
       case 'api-key':
         if (payload.authConfig.apiKeyHeader && payload.authConfig.apiKeyValue) {
-          headers.set(payload.authConfig.apiKeyHeader, payload.authConfig.apiKeyValue)
+          headers[payload.authConfig.apiKeyHeader] = payload.authConfig.apiKeyValue
         }
         break
+    }
+
+    // Inject browser cookies via declarativeNetRequest session rules
+    // fetch() forbids setting Cookie header directly (forbidden header per Fetch spec),
+    // so we use DNR to inject it at the network stack level
+    if (payload.withCredentials) {
+      const cookies = await chrome.cookies.getAll({ url: url.toString() })
+      if (cookies.length > 0) {
+        const cookieHeader = cookies.map((c) => `${c.name}=${c.value}`).join('; ')
+        cookieRuleId = await addCookieSessionRule(url.toString(), cookieHeader)
+        // Keep in headers object for display in response viewer
+        headers['Cookie'] = cookieHeader
+      }
     }
 
     // Build body
     let body: BodyInit | undefined
     if (payload.bodyType !== 'none' && !['GET', 'HEAD'].includes(payload.method)) {
       if (payload.bodyType === 'json') {
-        headers.set('Content-Type', 'application/json')
+        headers['Content-Type'] = 'application/json'
         body = payload.bodyContent
       } else if (payload.bodyType === 'form-data') {
-        // Parse key=value pairs
         const formData = new FormData()
         try {
           const pairs = JSON.parse(payload.bodyContent) as Record<string, string>
@@ -63,7 +121,6 @@ export async function executeApiRequest(
             formData.append(k, v)
           }
         } catch {
-          // Fallback: send as raw
           body = payload.bodyContent
         }
         body = formData
@@ -89,22 +146,21 @@ export async function executeApiRequest(
       responseHeaders[key] = value
     })
 
-    const requestHeaders: Record<string, string> = {}
-    headers.forEach((value, key) => {
-      requestHeaders[key] = value
-    })
-
     return {
       statusCode: response.status,
       statusText: response.statusText,
       headers: responseHeaders,
-      requestHeaders,
+      requestHeaders: headers,
       body: responseBody,
       duration,
       size: new Blob([responseBody]).size,
     }
   } finally {
     activeRequests.delete(requestId)
+    // Clean up cookie session rule
+    if (cookieRuleId !== null) {
+      removeCookieSessionRule(cookieRuleId).catch(() => {})
+    }
   }
 }
 

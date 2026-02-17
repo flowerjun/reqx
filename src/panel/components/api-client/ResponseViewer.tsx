@@ -88,7 +88,7 @@ export function ResponseViewer({ response }: ResponseViewerProps) {
         </Button>
       </div>
 
-      <Tabs defaultValue="body" className="flex flex-1 flex-col">
+      <Tabs defaultValue="body" className="flex flex-1 min-h-0 flex-col">
         <TabsList className="mx-3 mt-2 w-fit">
           <TabsTrigger value="body" className="text-xs">Body</TabsTrigger>
           <TabsTrigger value="headers" className="text-xs">
