@@ -8,6 +8,7 @@ import { ScrollArea } from '../ui/scroll-area'
 import { RuleMatchConfig } from './RuleMatchConfig'
 import { RuleActionConfig } from './RuleActionConfig'
 import { useInterceptorStore } from '../../stores/interceptor-store'
+import { useI18n } from '../../hooks/use-i18n'
 
 interface RuleEditorProps {
   rule: InterceptRule
@@ -15,6 +16,7 @@ interface RuleEditorProps {
 }
 
 export function RuleEditor({ rule, onClose }: RuleEditorProps) {
+  const t = useI18n()
   const updateRule = useInterceptorStore((s) => s.updateRule)
   const [draft, setDraft] = useState<InterceptRule>({ ...rule })
 
@@ -26,13 +28,13 @@ export function RuleEditor({ rule, onClose }: RuleEditorProps) {
   return (
     <div className="flex h-full flex-col border-l">
       <div className="flex items-center justify-between border-b px-4 py-3">
-        <h3 className="text-sm font-medium">Edit Rule</h3>
+        <h3 className="text-sm font-medium">{t.editRule}</h3>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" className="h-7 text-xs" onClick={onClose}>
-            Cancel
+            {t.cancel}
           </Button>
           <Button size="sm" className="h-7 text-xs" onClick={handleSave}>
-            Save
+            {t.save}
           </Button>
         </div>
       </div>
@@ -40,19 +42,19 @@ export function RuleEditor({ rule, onClose }: RuleEditorProps) {
       <ScrollArea className="flex-1">
         <div className="space-y-6 p-4">
           <div className="space-y-2">
-            <Label className="text-xs">Rule Name</Label>
+            <Label className="text-xs">{t.ruleName}</Label>
             <Input
               className="h-8 text-xs"
               value={draft.name}
               onChange={(e) => setDraft({ ...draft, name: e.target.value })}
-              placeholder="My rule"
+              placeholder={t.ruleNamePlaceholder}
             />
           </div>
 
           <Separator />
 
           <div>
-            <h4 className="text-xs font-medium mb-3">Match Condition</h4>
+            <h4 className="text-xs font-medium mb-3">{t.matchCondition}</h4>
             <RuleMatchConfig
               match={draft.match}
               onChange={(match) => setDraft({ ...draft, match })}
@@ -62,7 +64,7 @@ export function RuleEditor({ rule, onClose }: RuleEditorProps) {
           <Separator />
 
           <div>
-            <h4 className="text-xs font-medium mb-3">Action</h4>
+            <h4 className="text-xs font-medium mb-3">{t.action}</h4>
             <RuleActionConfig
               action={draft.action}
               matchOperator={draft.match.operator}

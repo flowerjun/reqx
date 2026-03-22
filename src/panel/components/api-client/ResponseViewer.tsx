@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Copy, Check } from 'lucide-react'
 import type { ApiResponsePayload } from '@/shared/types/messages'
+import { useI18n } from '../../hooks/use-i18n'
 import { ResponseMeta } from './ResponseMeta'
 import { CodeEditor } from '../shared/CodeEditor'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
@@ -15,6 +16,7 @@ interface ResponseViewerProps {
 }
 
 function HeaderTable({ headers, label }: { headers: Record<string, string>; label: string }) {
+  const t = useI18n()
   const entries = Object.entries(headers)
   if (entries.length === 0) return null
 
@@ -26,8 +28,8 @@ function HeaderTable({ headers, label }: { headers: Record<string, string>; labe
       <table className="w-full text-xs">
         <thead>
           <tr className="text-left text-muted-foreground border-b">
-            <th className="py-1.5 pr-3 font-medium w-[200px]">Name</th>
-            <th className="py-1.5 font-medium">Value</th>
+            <th className="py-1.5 pr-3 font-medium w-[200px]">{t.name}</th>
+            <th className="py-1.5 font-medium">{t.value}</th>
           </tr>
         </thead>
         <tbody>
@@ -48,6 +50,7 @@ function HeaderTable({ headers, label }: { headers: Record<string, string>; labe
 }
 
 export function ResponseViewer({ response }: ResponseViewerProps) {
+  const t = useI18n()
   const [copied, setCopied] = useState(false)
 
   const formattedBody = (() => {
@@ -84,15 +87,15 @@ export function ResponseViewer({ response }: ResponseViewerProps) {
         <ResponseMeta response={response} />
         <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={handleCopy}>
           {copied ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
-          {copied ? 'Copied' : 'Copy'}
+          {copied ? t.copied : t.copy}
         </Button>
       </div>
 
       <Tabs defaultValue="body" className="flex flex-1 min-h-0 flex-col">
         <TabsList className="mx-3 mt-2 w-fit">
-          <TabsTrigger value="body" className="text-xs">Body</TabsTrigger>
+          <TabsTrigger value="body" className="text-xs">{t.body}</TabsTrigger>
           <TabsTrigger value="headers" className="text-xs">
-            Headers
+            {t.headers}
             {totalHeaderCount > 0 && (
               <span className="ml-1 rounded-full bg-primary/10 px-1.5 text-[10px] text-primary">
                 {totalHeaderCount}
@@ -115,11 +118,11 @@ export function ResponseViewer({ response }: ResponseViewerProps) {
             <div className="space-y-6 p-3">
               <HeaderTable
                 headers={response.requestHeaders ?? {}}
-                label="Request Headers"
+                label={t.requestHeaders}
               />
               <HeaderTable
                 headers={response.headers}
-                label="Response Headers"
+                label={t.responseHeaders}
               />
             </div>
           </ScrollArea>

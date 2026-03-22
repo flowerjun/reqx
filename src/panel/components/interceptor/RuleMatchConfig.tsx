@@ -1,5 +1,6 @@
 import type { InterceptRule } from '@/shared/types/intercept-rule'
 import { HTTP_METHODS, MATCH_OPERATORS } from '@/shared/constants'
+import { useI18n } from '../../hooks/use-i18n'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
@@ -11,10 +12,12 @@ interface RuleMatchConfigProps {
 }
 
 export function RuleMatchConfig({ match, onChange }: RuleMatchConfigProps) {
+  const t = useI18n()
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label className="text-xs">Match Operator</Label>
+        <Label className="text-xs">{t.matchOperator}</Label>
         <Select
           value={match.operator}
           onValueChange={(v) => onChange({ ...match, operator: v as typeof match.operator })}
@@ -33,17 +36,17 @@ export function RuleMatchConfig({ match, onChange }: RuleMatchConfigProps) {
       </div>
 
       <div className="space-y-2">
-        <Label className="text-xs">URL Pattern</Label>
+        <Label className="text-xs">{t.urlPattern}</Label>
         <Input
           className="h-8 text-xs font-mono"
-          placeholder={match.operator === 'regex' ? '.*\\.api\\.com.*' : '*api.example.com*'}
+          placeholder={match.operator === 'regex' ? t.urlPatternRegexPlaceholder : t.urlPatternContainsPlaceholder}
           value={match.value}
           onChange={(e) => onChange({ ...match, value: e.target.value })}
         />
       </div>
 
       <div className="space-y-2">
-        <Label className="text-xs">HTTP Methods (empty = all)</Label>
+        <Label className="text-xs">{t.httpMethodsLabel}</Label>
         <div className="flex flex-wrap gap-3">
           {HTTP_METHODS.map((method) => (
             <label key={method} className="flex items-center gap-1.5 text-xs cursor-pointer">

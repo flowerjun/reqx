@@ -2,18 +2,12 @@ import { useRef, useState } from 'react'
 import { Trash2, GripVertical } from 'lucide-react'
 import type { InterceptRule } from '@/shared/types/intercept-rule'
 import { useInterceptorStore } from '../../stores/interceptor-store'
+import { useI18n } from '../../hooks/use-i18n'
 import { Switch } from '../ui/switch'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
 import { ConfirmDialog } from '../shared/ConfirmDialog'
 import { cn } from '@/lib/utils'
-
-const actionLabels: Record<string, string> = {
-  block: 'Block',
-  delay: 'Delay',
-  redirect: 'Redirect',
-  'modify-headers': 'Headers',
-}
 
 interface RuleListProps {
   rules: InterceptRule[]
@@ -23,7 +17,15 @@ interface RuleListProps {
 }
 
 export function RuleList({ rules, selectedId, onSelect, globalEnabled }: RuleListProps) {
+  const t = useI18n()
   const { toggleRule, removeRule, reorderRules } = useInterceptorStore()
+
+  const actionLabels: Record<string, string> = {
+    block: t.block,
+    delay: t.delay,
+    redirect: t.redirect,
+    'modify-headers': t.headers,
+  }
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const dragIndexRef = useRef<number | null>(null)
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
@@ -91,7 +93,7 @@ export function RuleList({ rules, selectedId, onSelect, globalEnabled }: RuleLis
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-medium truncate">{rule.name || 'Unnamed Rule'}</span>
+                <span className="text-xs font-medium truncate">{rule.name || t.unnamedRule}</span>
                 <Badge variant="outline" className="text-[10px] px-1.5 py-0">
                   {actionLabels[rule.action.type] ?? rule.action.type}
                 </Badge>
@@ -126,9 +128,9 @@ export function RuleList({ rules, selectedId, onSelect, globalEnabled }: RuleLis
       <ConfirmDialog
         open={!!deleteId}
         onOpenChange={() => setDeleteId(null)}
-        title="Delete Rule"
-        description="Are you sure you want to delete this rule? This action cannot be undone."
-        confirmLabel="Delete"
+        title={t.deleteRule}
+        description={t.deleteRuleConfirm}
+        confirmLabel={t.delete}
         variant="destructive"
         onConfirm={() => {
           if (deleteId) removeRule(deleteId)

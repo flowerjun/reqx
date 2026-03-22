@@ -3,6 +3,7 @@ import { useInterceptorStore } from '../../stores/interceptor-store'
 import { useBackgroundPort } from '../../hooks/use-background-port'
 import { useRuleSync } from '../../hooks/use-rule-sync'
 import { useResizablePanel } from '../../hooks/use-resizable-panel'
+import { useI18n } from '../../hooks/use-i18n'
 import { RuleList } from './RuleList'
 import { RuleEditor } from './RuleEditor'
 import { NetworkMonitor } from './NetworkMonitor'
@@ -15,6 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import type { InterceptRule } from '@/shared/types/intercept-rule'
 
 export function InterceptorView() {
+  const t = useI18n()
   const { rules, enabled, editingRuleId, addRule, setEnabled, setEditingRuleId } = useInterceptorStore()
   const { width: panelWidth, containerRef, handleMouseDown } = useResizablePanel(320, 280, 600)
 
@@ -59,12 +61,12 @@ export function InterceptorView() {
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
             <Switch checked={enabled} onCheckedChange={handleToggle} className="scale-90" />
-            <Label className="text-xs font-medium">Interceptor {enabled ? 'On' : 'Off'}</Label>
+            <Label className="text-xs font-medium">{t.interceptorOnOff(enabled)}</Label>
           </div>
         </div>
         <Button size="sm" className="h-7 text-xs" onClick={handleAddRule}>
           <Plus className="h-3 w-3 mr-1" />
-          New Rule
+          {t.newRule}
         </Button>
       </div>
 
@@ -75,10 +77,10 @@ export function InterceptorView() {
           <Tabs defaultValue="rules" className="flex flex-1 min-h-0 flex-col">
             <TabsList className="mx-4 mt-2 w-fit">
               <TabsTrigger value="rules" className="text-xs">
-                Rules ({rules.length})
+                {t.rules} ({rules.length})
               </TabsTrigger>
               <TabsTrigger value="network" className="text-xs">
-                Network
+                {t.network}
               </TabsTrigger>
             </TabsList>
 
@@ -86,12 +88,12 @@ export function InterceptorView() {
               {rules.length === 0 ? (
                 <EmptyState
                   icon={Shield}
-                  title="No intercept rules"
-                  description="Create rules to block, delay, redirect, or modify HTTP requests."
+                  title={t.noInterceptRules}
+                  description={t.noInterceptRulesDescription}
                   action={
                     <Button size="sm" className="h-7 text-xs" onClick={handleAddRule}>
                       <Plus className="h-3 w-3 mr-1" />
-                      Create Rule
+                      {t.createRule}
                     </Button>
                   }
                 />

@@ -4,8 +4,10 @@ import { useInterceptorStore } from '../../stores/interceptor-store'
 import { useMockStore } from '../../stores/mock-store'
 import { useHeaderOverrideStore } from '../../stores/header-override-store'
 import { Button } from '../ui/button'
+import { useI18n } from '../../hooks/use-i18n'
 
 export function Header() {
+  const t = useI18n()
   const { sidebarCollapsed, toggleSidebar } = useUiStore()
   const interceptorEnabled = useInterceptorStore((s) => s.enabled)
   const mockEnabled = useMockStore((s) => s.enabled)
@@ -27,17 +29,17 @@ export function Header() {
             <AlertTriangle className="h-3.5 w-3.5 text-amber-500 animate-pulse" />
             {interceptorEnabled && (
               <span className="text-[10px] font-medium rounded-full px-2 py-0.5 bg-orange-500/10 text-orange-600 dark:text-orange-400">
-                Interceptor
+                {t.interceptor}
               </span>
             )}
             {mockEnabled && (
               <span className="text-[10px] font-medium rounded-full px-2 py-0.5 bg-blue-500/10 text-blue-600 dark:text-blue-400">
-                Mocking
+                {t.mocking}
               </span>
             )}
             {headerEnabled && (
               <span className="text-[10px] font-medium rounded-full px-2 py-0.5 bg-purple-500/10 text-purple-600 dark:text-purple-400">
-                Headers
+                {t.headers}
               </span>
             )}
           </div>

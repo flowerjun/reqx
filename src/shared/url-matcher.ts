@@ -38,7 +38,7 @@ export function matchUrl(
   pattern: string,
   operator: MatchOperator,
 ): boolean {
-  if (!pattern || !pattern.trim()) return false
+  if (!pattern || !pattern.trim()) return true
 
   switch (operator) {
     case 'contains':

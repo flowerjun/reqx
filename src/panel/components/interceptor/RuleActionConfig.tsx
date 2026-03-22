@@ -1,5 +1,7 @@
 import type { InterceptRule, HeaderMod } from '@/shared/types/intercept-rule'
 import type { MatchOperator } from '@/shared/constants'
+import type { Translations } from '@/shared/i18n'
+import { useI18n } from '../../hooks/use-i18n'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 import { Separator } from '../ui/separator'
@@ -10,12 +12,14 @@ import { Plus, Trash2 } from 'lucide-react'
 
 type ActionType = InterceptRule['action']['type']
 
-const ACTION_TYPES: { value: ActionType; label: string; description: string }[] = [
-  { value: 'block', label: 'Block Request', description: 'Prevent request from reaching the server' },
-  { value: 'delay', label: 'Add Delay', description: 'Add latency before continuing' },
-  { value: 'redirect', label: 'Redirect', description: 'Reroute request to another URL' },
-  { value: 'modify-headers', label: 'Modify Headers', description: 'Change request/response headers' },
-]
+function getActionTypes(t: Translations): { value: ActionType; label: string; description: string }[] {
+  return [
+    { value: 'block', label: t.blockRequest, description: t.blockRequestDesc },
+    { value: 'delay', label: t.addDelay, description: t.addDelayDesc },
+    { value: 'redirect', label: t.redirectLabel, description: t.redirectDesc },
+    { value: 'modify-headers', label: t.modifyHeaders, description: t.modifyHeadersDesc },
+  ]
+}
 
 interface RuleActionConfigProps {
   action: InterceptRule['action']
@@ -37,6 +41,9 @@ function getDefaultsForType(type: ActionType): Partial<InterceptRule['action']> 
 }
 
 export function RuleActionConfig({ action, matchOperator, onChange }: RuleActionConfigProps) {
+  const t = useI18n()
+  const ACTION_TYPES = getActionTypes(t)
+
   const handleTypeChange = (type: ActionType) => {
     onChange({ ...action, ...getDefaultsForType(type), type })
   }
@@ -56,7 +63,7 @@ export function RuleActionConfig({ action, matchOperator, onChange }: RuleAction
     <div className="space-y-4">
       {/* Primary action type */}
       <div className="space-y-2">
-        <Label className="text-xs">Action Type</Label>
+        <Label className="text-xs">{t.actionType}</Label>
         <Select value={action.type} onValueChange={handleTypeChange}>
           <SelectTrigger className="h-8 text-xs">
             <SelectValue />
@@ -74,7 +81,7 @@ export function RuleActionConfig({ action, matchOperator, onChange }: RuleAction
       {/* Primary: Delay config */}
       {action.type === 'delay' && (
         <div className="space-y-2">
-          <Label className="text-xs">Delay (ms)</Label>
+          <Label className="text-xs">{t.delayMs}</Label>
           <Input
             className="h-8 text-xs"
             type="number"
@@ -95,12 +102,12 @@ export function RuleActionConfig({ action, matchOperator, onChange }: RuleAction
       {action.type === 'modify-headers' && (
         <div className="space-y-4">
           <HeaderModList
-            label="Request Headers"
+            label={t.requestHeaders}
             headers={action.requestHeaders ?? []}
             onChange={(h) => onChange({ ...action, requestHeaders: h })}
           />
           <HeaderModList
-            label="Response Headers"
+            label={t.responseHeaders}
             headers={action.responseHeaders ?? []}
             onChange={(h) => onChange({ ...action, responseHeaders: h })}
           />
@@ -115,7 +122,7 @@ export function RuleActionConfig({ action, matchOperator, onChange }: RuleAction
             <>
               <Separator />
               <ExtraActionWrapper
-                label="Delay"
+                label={t.delay}
                 onRemove={() => onChange({ ...action, delayMs: undefined })}
               >
                 <Input
@@ -125,7 +132,7 @@ export function RuleActionConfig({ action, matchOperator, onChange }: RuleAction
                   step={100}
                   value={action.delayMs ?? 1000}
                   onChange={(e) => onChange({ ...action, delayMs: parseInt(e.target.value) || 0 })}
-                  placeholder="Delay in ms"
+                  placeholder={t.delayMsPlaceholder}
                 />
               </ExtraActionWrapper>
             </>
@@ -135,7 +142,7 @@ export function RuleActionConfig({ action, matchOperator, onChange }: RuleAction
             <>
               <Separator />
               <ExtraActionWrapper
-                label="Redirect"
+                label={t.redirect}
                 onRemove={() => onChange({ ...action, redirectUrl: undefined, preservePath: undefined })}
               >
                 <RedirectConfig action={action} matchOperator={matchOperator} onChange={onChange} />
@@ -147,17 +154,17 @@ export function RuleActionConfig({ action, matchOperator, onChange }: RuleAction
             <>
               <Separator />
               <ExtraActionWrapper
-                label="Modify Headers"
+                label={t.modifyHeaders}
                 onRemove={() => onChange({ ...action, requestHeaders: undefined, responseHeaders: undefined })}
               >
                 <div className="space-y-4">
                   <HeaderModList
-                    label="Request Headers"
+                    label={t.requestHeaders}
                     headers={action.requestHeaders ?? []}
                     onChange={(h) => onChange({ ...action, requestHeaders: h })}
                   />
                   <HeaderModList
-                    label="Response Headers"
+                    label={t.responseHeaders}
                     headers={action.responseHeaders ?? []}
                     onChange={(h) => onChange({ ...action, responseHeaders: h })}
                   />
@@ -172,7 +179,7 @@ export function RuleActionConfig({ action, matchOperator, onChange }: RuleAction
               <Separator />
               <div className="space-y-2">
                 <Label className="text-[11px] text-muted-foreground uppercase tracking-wider">
-                  Add Action
+                  {t.addAction}
                 </Label>
                 <div className="flex flex-wrap gap-2">
                   {canAddDelay && (
@@ -183,7 +190,7 @@ export function RuleActionConfig({ action, matchOperator, onChange }: RuleAction
                       onClick={() => onChange({ ...action, delayMs: 1000 })}
                     >
                       <Plus className="h-3 w-3 mr-1" />
-                      Delay
+                      {t.delay}
                     </Button>
                   )}
                   {canAddRedirect && (
@@ -194,7 +201,7 @@ export function RuleActionConfig({ action, matchOperator, onChange }: RuleAction
                       onClick={() => onChange({ ...action, redirectUrl: '' })}
                     >
                       <Plus className="h-3 w-3 mr-1" />
-                      Redirect
+                      {t.redirect}
                     </Button>
                   )}
                   {canAddHeaders && (
@@ -205,7 +212,7 @@ export function RuleActionConfig({ action, matchOperator, onChange }: RuleAction
                       onClick={() => onChange({ ...action, requestHeaders: [], responseHeaders: [] })}
                     >
                       <Plus className="h-3 w-3 mr-1" />
-                      Modify Headers
+                      {t.modifyHeaders}
                     </Button>
                   )}
                 </div>
@@ -249,13 +256,15 @@ function RedirectConfig({
   matchOperator: MatchOperator
   onChange: (action: InterceptRule['action']) => void
 }) {
+  const t = useI18n()
+
   return (
     <div className="space-y-3">
       <div className="space-y-2">
-        <Label className="text-xs">Redirect URL</Label>
+        <Label className="text-xs">{t.redirectUrl}</Label>
         <Input
           className="h-8 text-xs font-mono"
-          placeholder="https://example.com/api/v2"
+          placeholder={t.redirectUrlPlaceholder}
           value={action.redirectUrl ?? ''}
           onChange={(e) => onChange({ ...action, redirectUrl: e.target.value })}
         />
@@ -263,7 +272,7 @@ function RedirectConfig({
       {matchOperator !== 'equals' && (
         <div className="flex items-center justify-between">
           <Label className="text-xs text-muted-foreground">
-            Preserve path (replace matched part only)
+            {t.preservePath}
           </Label>
           <Switch
             checked={action.preservePath ?? false}
@@ -284,6 +293,8 @@ function HeaderModList({
   headers: HeaderMod[]
   onChange: (headers: HeaderMod[]) => void
 }) {
+  const t = useI18n()
+
   const addHeader = () => {
     onChange([...headers, { operation: 'set', header: '', value: '' }])
   }
@@ -309,20 +320,20 @@ function HeaderModList({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="set" className="text-xs">Set</SelectItem>
-              <SelectItem value="remove" className="text-xs">Remove</SelectItem>
+              <SelectItem value="set" className="text-xs">{t.set}</SelectItem>
+              <SelectItem value="remove" className="text-xs">{t.remove}</SelectItem>
             </SelectContent>
           </Select>
           <Input
             className="h-8 text-xs"
-            placeholder="Header name"
+            placeholder={t.headerNamePlaceholder}
             value={h.header}
             onChange={(e) => updateHeader(index, { header: e.target.value })}
           />
           {h.operation === 'set' && (
             <Input
               className="h-8 text-xs"
-              placeholder="Value"
+              placeholder={t.valuePlaceholder}
               value={h.value}
               onChange={(e) => updateHeader(index, { value: e.target.value })}
             />
@@ -334,7 +345,7 @@ function HeaderModList({
       ))}
       <Button variant="outline" size="sm" className="h-7 text-xs" onClick={addHeader}>
         <Plus className="h-3 w-3 mr-1" />
-        Add Header
+        {t.addHeader}
       </Button>
     </div>
   )

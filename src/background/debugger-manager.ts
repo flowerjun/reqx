@@ -125,6 +125,8 @@ export function updateHeaderOverrideRules(tabId: number, rules: HeaderOverrideRu
   session.headerOverrideRules = rules
 }
 
+
+
 export function setHeaderOverrideEnabled(tabId: number, enabled: boolean) {
   const session = getOrCreateSession(tabId)
   session.headerOverrideEnabled = enabled
@@ -168,6 +170,7 @@ async function handleRequestPaused(
   }
 
   const requestId = params.requestId as string
+  const resourceType = params.resourceType as string | undefined
   const request = params.request as { url: string; method: string; headers: Record<string, string> }
   const url = request.url
   const method = request.method as HttpMethod
@@ -213,17 +216,19 @@ async function handleRequestPaused(
     if (matchedRuleIds.length > 0) {
       headerOverrideResult = { modifiedHeaders, matchedRuleIds }
 
-      // Send notifications immediately (before mock/intercept processing)
-      for (const ruleId of matchedRuleIds) {
-        sendToPanel(tabId, { type: 'REQUEST_HEADER_OVERRIDDEN', ruleId, url })
-      }
-      if (getOverlayEnabled(tabId)) {
-        for (const rule of session.headerOverrideRules) {
-          if (matchedRuleIds.includes(rule.id)) {
-            chrome.tabs.sendMessage(tabId, {
-              source: 'reqx', type: 'RULE_MATCHED',
-              matchType: 'header-overridden', ruleName: rule.name, url, action: 'header-override',
-            }).catch(() => {})
+      // 헤더 오버라이드 알림은 Document 요청(페이지 로드)일 때만 한 번 표시
+      if (resourceType === 'Document') {
+        for (const ruleId of matchedRuleIds) {
+          sendToPanel(tabId, { type: 'REQUEST_HEADER_OVERRIDDEN', ruleId, url })
+        }
+        if (getOverlayEnabled(tabId)) {
+          for (const rule of session.headerOverrideRules) {
+            if (matchedRuleIds.includes(rule.id)) {
+              chrome.tabs.sendMessage(tabId, {
+                source: 'reqx', type: 'RULE_MATCHED',
+                matchType: 'header-overridden', ruleName: rule.name, url, action: 'header-override',
+              }).catch(() => {})
+            }
           }
         }
       }

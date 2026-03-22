@@ -1,5 +1,6 @@
 import { Activity, Trash2 } from 'lucide-react'
 import { useNetworkStore } from '../../stores/network-store'
+import { useI18n } from '../../hooks/use-i18n'
 import { StatusBadge } from '../shared/StatusBadge'
 import { Button } from '../ui/button'
 import { ScrollArea } from '../ui/scroll-area'
@@ -9,14 +10,15 @@ import { cn } from '@/lib/utils'
 import { METHOD_COLORS } from '@/shared/constants'
 
 export function NetworkMonitor() {
+  const t = useI18n()
   const { entries, selectedEntryId, selectEntry, clearEntries } = useNetworkStore()
 
   if (entries.length === 0) {
     return (
       <EmptyState
         icon={Activity}
-        title="No network activity"
-        description="Network requests will appear here when intercepting is enabled."
+        title={t.noNetworkActivity}
+        description={t.noNetworkDescription}
       />
     )
   }
@@ -24,10 +26,10 @@ export function NetworkMonitor() {
   return (
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-between border-b px-3 py-2">
-        <span className="text-xs text-muted-foreground">{entries.length} requests</span>
+        <span className="text-xs text-muted-foreground">{entries.length} {t.requests}</span>
         <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={clearEntries}>
           <Trash2 className="h-3 w-3 mr-1" />
-          Clear
+          {t.clear}
         </Button>
       </div>
 
@@ -49,7 +51,7 @@ export function NetworkMonitor() {
               {entry.statusCode > 0 ? (
                 <StatusBadge statusCode={entry.statusCode} />
               ) : (
-                <Badge variant="outline" className="text-[10px]">pending</Badge>
+                <Badge variant="outline" className="text-[10px]">{t.pending}</Badge>
               )}
 
               <span className="flex-1 truncate font-mono text-[11px] text-muted-foreground">
@@ -57,10 +59,10 @@ export function NetworkMonitor() {
               </span>
 
               {entry.mockedBy && (
-                <Badge variant="secondary" className="text-[10px] shrink-0">mocked</Badge>
+                <Badge variant="secondary" className="text-[10px] shrink-0">{t.mocked}</Badge>
               )}
               {entry.interceptedBy && (
-                <Badge variant="secondary" className="text-[10px] shrink-0">intercepted</Badge>
+                <Badge variant="secondary" className="text-[10px] shrink-0">{t.intercepted}</Badge>
               )}
 
               {entry.duration > 0 && (

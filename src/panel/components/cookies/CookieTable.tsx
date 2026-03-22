@@ -1,5 +1,6 @@
 import { Trash2, Lock, Globe } from 'lucide-react'
 import type { BrowserCookie } from '@/shared/types/cookie'
+import { useI18n } from '../../hooks/use-i18n'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
 import { cn } from '@/lib/utils'
@@ -12,16 +13,17 @@ interface CookieTableProps {
 }
 
 export function CookieTable({ cookies, selectedCookie, onSelect, onDelete }: CookieTableProps) {
+  const t = useI18n()
   return (
     <div className="flex-1 overflow-auto">
       <table className="w-full text-xs">
         <thead className="sticky top-0 bg-background border-b">
           <tr className="text-left text-muted-foreground">
-            <th className="px-3 py-2 font-medium">Name</th>
-            <th className="px-3 py-2 font-medium">Value</th>
-            <th className="px-3 py-2 font-medium">Domain</th>
-            <th className="px-3 py-2 font-medium">Path</th>
-            <th className="px-3 py-2 font-medium">Flags</th>
+            <th className="px-3 py-2 font-medium">{t.name}</th>
+            <th className="px-3 py-2 font-medium">{t.value}</th>
+            <th className="px-3 py-2 font-medium">{t.domain}</th>
+            <th className="px-3 py-2 font-medium">{t.path}</th>
+            <th className="px-3 py-2 font-medium">{t.flags}</th>
             <th className="px-3 py-2 font-medium w-10" />
           </tr>
         </thead>
@@ -43,7 +45,7 @@ export function CookieTable({ cookies, selectedCookie, onSelect, onDelete }: Coo
               >
                 <td className="px-3 py-1.5 font-mono truncate max-w-[160px]">{cookie.name}</td>
                 <td className="px-3 py-1.5 font-mono truncate max-w-[200px] text-muted-foreground">
-                  {cookie.value || <span className="italic">(empty)</span>}
+                  {cookie.value || <span className="italic">{t.empty}</span>}
                 </td>
                 <td className="px-3 py-1.5 truncate max-w-[140px]">{cookie.domain}</td>
                 <td className="px-3 py-1.5 font-mono">{cookie.path}</td>
@@ -52,18 +54,18 @@ export function CookieTable({ cookies, selectedCookie, onSelect, onDelete }: Coo
                     {cookie.secure && (
                       <Badge variant="outline" className="h-4 px-1 text-[9px]">
                         <Lock className="h-2.5 w-2.5 mr-0.5" />
-                        Secure
+                        {t.secure}
                       </Badge>
                     )}
                     {cookie.httpOnly && (
                       <Badge variant="outline" className="h-4 px-1 text-[9px]">
                         <Globe className="h-2.5 w-2.5 mr-0.5" />
-                        HttpOnly
+                        {t.httpOnly}
                       </Badge>
                     )}
                     {cookie.session && (
                       <Badge variant="secondary" className="h-4 px-1 text-[9px]">
-                        Session
+                        {t.session}
                       </Badge>
                     )}
                   </div>

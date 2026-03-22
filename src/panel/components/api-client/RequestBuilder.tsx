@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Loader2, Send, Save } from 'lucide-react'
 import { useApiClientStore } from '../../stores/api-client-store'
+import { useI18n } from '../../hooks/use-i18n'
 import { SaveToCollectionDialog } from './SaveToCollectionDialog'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
@@ -18,6 +19,7 @@ interface RequestBuilderProps {
 }
 
 export function RequestBuilder({ onSend, onCancel }: RequestBuilderProps) {
+  const t = useI18n()
   const { method, url, loading, withCredentials, setMethod, setUrl, setWithCredentials } = useApiClientStore()
   const [showSaveDialog, setShowSaveDialog] = useState(false)
 
@@ -51,7 +53,7 @@ export function RequestBuilder({ onSend, onCancel }: RequestBuilderProps) {
 
         <Input
           className="h-9 flex-1 font-mono text-xs"
-          placeholder="https://api.example.com/endpoint"
+          placeholder={t.urlPlaceholder}
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           onKeyDown={(e) => {
@@ -71,18 +73,18 @@ export function RequestBuilder({ onSend, onCancel }: RequestBuilderProps) {
               <Save className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent>Save to Collection</TooltipContent>
+          <TooltipContent>{t.saveToCollection}</TooltipContent>
         </Tooltip>
 
         {loading ? (
           <Button variant="destructive" size="sm" className="h-9 px-4" onClick={onCancel}>
             <Loader2 className="h-4 w-4 animate-spin mr-1" />
-            Cancel
+            {t.cancel}
           </Button>
         ) : (
           <Button size="sm" className="h-9 px-4" onClick={onSend} disabled={!url}>
             <Send className="h-4 w-4 mr-1" />
-            Send
+            {t.send}
           </Button>
         )}
       </div>
@@ -94,7 +96,7 @@ export function RequestBuilder({ onSend, onCancel }: RequestBuilderProps) {
           onCheckedChange={(checked) => setWithCredentials(!!checked)}
         />
         <Label htmlFor="with-credentials" className="text-[11px] text-muted-foreground cursor-pointer">
-          Send cookies (credentials: include)
+          {t.sendCookies}
         </Label>
       </div>
 

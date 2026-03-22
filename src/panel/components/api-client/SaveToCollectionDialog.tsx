@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { Save, Plus, FolderOpen } from 'lucide-react'
 import { useCollectionStore } from '../../stores/collection-store'
 import { useApiClientStore } from '../../stores/api-client-store'
+import { useI18n } from '../../hooks/use-i18n'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
@@ -35,6 +36,7 @@ function extractNameFromUrl(url: string): string {
 }
 
 export function SaveToCollectionDialog({ open, onOpenChange }: SaveToCollectionDialogProps) {
+  const t = useI18n()
   const { collections, addCollection, addRequestToCollection, updateRequestInCollection } = useCollectionStore()
   const store = useApiClientStore()
 
@@ -127,13 +129,13 @@ export function SaveToCollectionDialog({ open, onOpenChange }: SaveToCollectionD
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Save className="h-4 w-4" />
-            {isUpdate ? 'Update Request' : 'Save to Collection'}
+            {isUpdate ? t.updateRequest : t.saveToCollection}
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label className="text-xs">Request Name</Label>
+            <Label className="text-xs">{t.requestName}</Label>
             <Input
               className="h-8 text-xs"
               value={requestName}
@@ -145,7 +147,7 @@ export function SaveToCollectionDialog({ open, onOpenChange }: SaveToCollectionD
           {isUpdate ? (
             <div className="rounded-md bg-muted/50 p-3">
               <p className="text-xs text-muted-foreground">
-                This will update the existing request in its collection.
+                {t.updateExistingMessage}
               </p>
               <Button
                 variant="link"
@@ -158,15 +160,15 @@ export function SaveToCollectionDialog({ open, onOpenChange }: SaveToCollectionD
                   })
                 }}
               >
-                Save as new instead
+                {t.saveAsNew}
               </Button>
             </div>
           ) : (
             <div className="space-y-2">
-              <Label className="text-xs">Collection</Label>
+              <Label className="text-xs">{t.collection}</Label>
               <Select value={selectedCollectionId} onValueChange={setSelectedCollectionId}>
                 <SelectTrigger className="h-8 text-xs">
-                  <SelectValue placeholder="Select a collection" />
+                  <SelectValue placeholder={t.selectCollection} />
                 </SelectTrigger>
                 <SelectContent>
                   {collections.map((c) => (
@@ -180,7 +182,7 @@ export function SaveToCollectionDialog({ open, onOpenChange }: SaveToCollectionD
                   <SelectItem value="__new__" className="text-xs">
                     <div className="flex items-center gap-2 text-primary">
                       <Plus className="h-3 w-3" />
-                      New Collection
+                      {t.newCollection}
                     </div>
                   </SelectItem>
                 </SelectContent>
@@ -190,7 +192,7 @@ export function SaveToCollectionDialog({ open, onOpenChange }: SaveToCollectionD
                   className="h-8 text-xs"
                   value={newCollectionName}
                   onChange={(e) => setNewCollectionName(e.target.value)}
-                  placeholder="Collection name"
+                  placeholder={t.collectionNamePlaceholder}
                   autoFocus
                   onKeyDown={(e) => e.key === 'Enter' && canSave && handleSave()}
                 />
@@ -201,11 +203,11 @@ export function SaveToCollectionDialog({ open, onOpenChange }: SaveToCollectionD
 
         <DialogFooter>
           <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t.cancel}
           </Button>
           <Button size="sm" className="h-7 text-xs" onClick={handleSave} disabled={!canSave}>
             <Save className="h-3 w-3 mr-1" />
-            {isUpdate ? 'Update' : 'Save'}
+            {isUpdate ? t.update : t.save}
           </Button>
         </DialogFooter>
       </DialogContent>

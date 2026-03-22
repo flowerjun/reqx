@@ -12,6 +12,7 @@ import { Button } from '../ui/button'
 import { Switch } from '../ui/switch'
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
 import type { Theme } from '../../stores/theme-store'
+import { useI18n } from '../../hooks/use-i18n'
 
 const EXPORT_VERSION = 1
 
@@ -26,12 +27,16 @@ interface ExportData {
 }
 
 export function SettingsView() {
+  const t = useI18n()
   const { theme, setTheme } = useTheme()
   const pageOverlay = useThemeStore((s) => s.pageOverlay)
   const setPageOverlay = useThemeStore((s) => s.setPageOverlay)
   const { sendCommand } = useBackgroundPort()
   const [importStatus, setImportStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const language = useThemeStore((s) => s.language)
+  const setLanguage = useThemeStore((s) => s.setLanguage)
 
   const handleOverlayToggle = (checked: boolean) => {
     setPageOverlay(checked)
@@ -75,7 +80,7 @@ export function SettingsView() {
         const data = JSON.parse(text) as ExportData
 
         if (!data.version || data.version > EXPORT_VERSION) {
-          setImportStatus({ type: 'error', message: 'Unsupported file version.' })
+          setImportStatus({ type: 'error', message: t.unsupportedVersion })
           return
         }
 
@@ -111,9 +116,9 @@ export function SettingsView() {
           setTheme(data.theme)
         }
 
-        setImportStatus({ type: 'success', message: 'Settings imported successfully.' })
+        setImportStatus({ type: 'success', message: t.importSuccess })
       } catch {
-        setImportStatus({ type: 'error', message: 'Invalid file format.' })
+        setImportStatus({ type: 'error', message: t.invalidFormat })
       }
     }
     reader.readAsText(file)
@@ -129,22 +134,22 @@ export function SettingsView() {
 
   return (
     <div className="mx-auto max-w-2xl p-6">
-      <h2 className="text-lg font-semibold mb-6">Settings</h2>
+      <h2 className="text-lg font-semibold mb-6">{t.settings}</h2>
 
       <div className="space-y-8">
         {/* Theme */}
         <div className="space-y-3">
-          <Label className="text-sm font-medium">Theme</Label>
+          <Label className="text-sm font-medium">{t.theme}</Label>
           <RadioGroup
             value={theme}
             onValueChange={(v) => setTheme(v as Theme)}
             className="flex gap-4"
           >
-            {(['light', 'dark', 'system'] as const).map((t) => (
-              <div key={t} className="flex items-center space-x-2">
-                <RadioGroupItem value={t} id={`theme-${t}`} />
-                <Label htmlFor={`theme-${t}`} className="capitalize cursor-pointer">
-                  {t}
+            {(['light', 'dark', 'system'] as const).map((themeOption) => (
+              <div key={themeOption} className="flex items-center space-x-2">
+                <RadioGroupItem value={themeOption} id={`theme-${themeOption}`} />
+                <Label htmlFor={`theme-${themeOption}`} className="cursor-pointer">
+                  {t[themeOption]}
                 </Label>
               </div>
             ))}
@@ -153,11 +158,11 @@ export function SettingsView() {
 
         {/* Page Overlay */}
         <div className="space-y-3">
-          <Label className="text-sm font-medium">Page Overlay</Label>
+          <Label className="text-sm font-medium">{t.pageOverlay}</Label>
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs text-muted-foreground">
-                Show an overlay on the page when interception, mocking, or header rules are active.
+                {t.pageOverlayDescription}
               </p>
             </div>
             <Switch
@@ -167,16 +172,35 @@ export function SettingsView() {
           </div>
         </div>
 
+        {/* Language */}
+        <div className="space-y-3">
+          <Label className="text-sm font-medium">{t.language}</Label>
+          <RadioGroup
+            value={language}
+            onValueChange={(v) => setLanguage(v as 'en' | 'ko')}
+            className="flex gap-4"
+          >
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="en" id="lang-en" />
+              <Label htmlFor="lang-en" className="cursor-pointer">{t.english}</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="ko" id="lang-ko" />
+              <Label htmlFor="lang-ko" className="cursor-pointer">{t.korean}</Label>
+            </div>
+          </RadioGroup>
+        </div>
+
         {/* Data Management */}
         <div className="space-y-3">
-          <Label className="text-sm font-medium">Data Management</Label>
+          <Label className="text-sm font-medium">{t.dataManagement}</Label>
           <p className="text-xs text-muted-foreground">
-            Export all rules, collections, and settings as a JSON file, or import from a previously exported file.
+            {t.dataManagementDescription}
           </p>
           <div className="flex items-center gap-3">
             <Button variant="outline" size="sm" className="h-8 text-xs" onClick={handleExport}>
               <Download className="h-3.5 w-3.5 mr-1.5" />
-              Export Settings
+              {t.exportSettings}
             </Button>
             <Button
               variant="outline"
@@ -185,7 +209,7 @@ export function SettingsView() {
               onClick={() => fileInputRef.current?.click()}
             >
               <Upload className="h-3.5 w-3.5 mr-1.5" />
-              Import Settings
+              {t.importSettings}
             </Button>
             <input
               ref={fileInputRef}

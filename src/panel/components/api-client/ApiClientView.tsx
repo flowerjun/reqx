@@ -1,5 +1,6 @@
 import { ArrowDown, AlertCircle } from 'lucide-react'
 import { useApiClientStore } from '../../stores/api-client-store'
+import { useI18n } from '../../hooks/use-i18n'
 import { useHistoryStore } from '../../stores/history-store'
 import { useBackgroundPort } from '../../hooks/use-background-port'
 import { RequestBuilder } from './RequestBuilder'
@@ -15,6 +16,7 @@ import type { BackgroundEvent } from '@/shared/types/messages'
 import type { HistoryEntry } from '@/shared/types/api-request'
 
 export function ApiClientView() {
+  const t = useI18n()
   const store = useApiClientStore()
   const addHistoryEntry = useHistoryStore((s) => s.addEntry)
 
@@ -111,17 +113,17 @@ export function ApiClientView() {
         <Tabs defaultValue="params" className="flex flex-col overflow-hidden">
           <TabsList className="mx-4 mt-2 w-fit">
             <TabsTrigger value="params" className="text-xs">
-              Params
+              {t.params}
               {store.queryParams.filter((p) => p.enabled && p.key).length > 0 && (
                 <span className="ml-1 rounded-full bg-primary/10 px-1.5 text-[10px] text-primary">
                   {store.queryParams.filter((p) => p.enabled && p.key).length}
                 </span>
               )}
             </TabsTrigger>
-            <TabsTrigger value="headers" className="text-xs">Headers</TabsTrigger>
-            <TabsTrigger value="body" className="text-xs">Body</TabsTrigger>
-            <TabsTrigger value="auth" className="text-xs">Auth</TabsTrigger>
-            <TabsTrigger value="scripts" className="text-xs">Scripts</TabsTrigger>
+            <TabsTrigger value="headers" className="text-xs">{t.headers}</TabsTrigger>
+            <TabsTrigger value="body" className="text-xs">{t.body}</TabsTrigger>
+            <TabsTrigger value="auth" className="text-xs">{t.auth}</TabsTrigger>
+            <TabsTrigger value="scripts" className="text-xs">{t.scripts}</TabsTrigger>
           </TabsList>
 
           <div className="flex-1 overflow-auto">
@@ -132,8 +134,8 @@ export function ApiClientView() {
               <KeyValueTable
                 items={store.headers}
                 onChange={store.setHeaders}
-                keyPlaceholder="Header"
-                valuePlaceholder="Value"
+                keyPlaceholder={t.header}
+                valuePlaceholder={t.value}
               />
             </TabsContent>
             <TabsContent value="body" className="mt-0">
@@ -168,7 +170,7 @@ export function ApiClientView() {
         {!store.response && !store.error && !store.loading && (
           <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
             <ArrowDown className="h-8 w-8 mb-2 opacity-30" />
-            <p className="text-xs">Response will appear here</p>
+            <p className="text-xs">{t.responseWillAppear}</p>
           </div>
         )}
       </div>

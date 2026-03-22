@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Trash2, GripVertical } from 'lucide-react'
 import type { MockRule } from '@/shared/types/mock-rule'
 import { useMockStore } from '../../stores/mock-store'
+import { useI18n } from '../../hooks/use-i18n'
 import { Switch } from '../ui/switch'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
@@ -16,6 +17,7 @@ interface MockRuleListProps {
 }
 
 export function MockRuleList({ rules, selectedId, onSelect, globalEnabled }: MockRuleListProps) {
+  const t = useI18n()
   const { toggleRule, removeRule } = useMockStore()
   const [deleteId, setDeleteId] = useState<string | null>(null)
 
@@ -42,7 +44,7 @@ export function MockRuleList({ rules, selectedId, onSelect, globalEnabled }: Moc
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-medium truncate">{rule.name || 'Unnamed Mock'}</span>
+                <span className="text-xs font-medium truncate">{rule.name || t.unnamedMock}</span>
                 <Badge variant="outline" className="text-[10px] px-1.5 py-0">
                   {rule.response.statusCode}
                 </Badge>
@@ -80,9 +82,9 @@ export function MockRuleList({ rules, selectedId, onSelect, globalEnabled }: Moc
       <ConfirmDialog
         open={!!deleteId}
         onOpenChange={() => setDeleteId(null)}
-        title="Delete Mock Rule"
-        description="Are you sure you want to delete this mock rule? This action cannot be undone."
-        confirmLabel="Delete"
+        title={t.deleteMockRule}
+        description={t.deleteMockConfirm}
+        confirmLabel={t.delete}
         variant="destructive"
         onConfirm={() => {
           if (deleteId) removeRule(deleteId)

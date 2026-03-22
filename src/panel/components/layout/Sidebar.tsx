@@ -2,18 +2,20 @@ import { Shield,Send,Database,FolderOpen,Braces,Settings,Cookie,FileText } from 
 import { cn } from '@/lib/utils'
 import { type PanelId, useUiStore } from '../../stores/ui-store'
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip'
+import { useI18n } from '../../hooks/use-i18n'
 
-const navItems: { id: PanelId; label: string; icon: typeof Shield }[] = [
-  { id: 'interceptor', label: 'Interceptor', icon: Shield },
-  { id: 'api-client', label: 'API Client', icon: Send },
-  { id: 'mocking', label: 'Mocking', icon: Database },
-  { id: 'headers', label: 'Headers', icon: FileText },
-  { id: 'cookies', label: 'Cookies', icon: Cookie },
-  { id: 'collections', label: 'Collections', icon: FolderOpen },
-  { id: 'type-extractor', label: 'Type Extract', icon: Braces },
+const navIcons: { id: PanelId; labelKey: 'interceptor' | 'apiClient' | 'mocking' | 'headers' | 'cookies' | 'collections' | 'typeExtract'; icon: typeof Shield }[] = [
+  { id: 'interceptor', labelKey: 'interceptor', icon: Shield },
+  { id: 'api-client', labelKey: 'apiClient', icon: Send },
+  { id: 'mocking', labelKey: 'mocking', icon: Database },
+  { id: 'headers', labelKey: 'headers', icon: FileText },
+  { id: 'cookies', labelKey: 'cookies', icon: Cookie },
+  { id: 'collections', labelKey: 'collections', icon: FolderOpen },
+  { id: 'type-extractor', labelKey: 'typeExtract', icon: Braces },
 ]
 
 export function Sidebar() {
+  const t = useI18n()
   const { activePanel, setActivePanel, sidebarCollapsed, sidebarWidth, sidebarResizing } = useUiStore()
 
   return (
@@ -39,7 +41,8 @@ export function Sidebar() {
       </div>
 
       <nav className="flex flex-1 flex-col gap-1 p-2">
-        {navItems.map(({ id, label, icon: Icon }) => {
+        {navIcons.map(({ id, labelKey, icon: Icon }) => {
+          const label = t[labelKey]
           const button = (
             <button
               key={id}
@@ -81,7 +84,7 @@ export function Sidebar() {
               )}
             >
               <Settings className="h-4 w-4 shrink-0" />
-              {!sidebarCollapsed && <span>Settings</span>}
+              {!sidebarCollapsed && <span>{t.settings}</span>}
             </button>
           )
 
@@ -89,7 +92,7 @@ export function Sidebar() {
             return (
               <Tooltip>
                 <TooltipTrigger asChild>{settingsBtn}</TooltipTrigger>
-                <TooltipContent side="right">Settings</TooltipContent>
+                <TooltipContent side="right">{t.settings}</TooltipContent>
               </Tooltip>
             )
           }

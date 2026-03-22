@@ -1,6 +1,7 @@
 import { useState, useEffect, useEffectEvent } from 'react'
 import { Plus, Cookie, RefreshCw, Search, Trash2 } from 'lucide-react'
 import { useCookieStore } from '../../stores/cookie-store'
+import { useI18n } from '../../hooks/use-i18n'
 import { useBackgroundPort } from '../../hooks/use-background-port'
 import { CookieTable } from './CookieTable'
 import { CookieEditor } from './CookieEditor'
@@ -12,6 +13,7 @@ import type { BackgroundEvent } from '@/shared/types/messages'
 import type { BrowserCookie, CookieSetParams } from '@/shared/types/cookie'
 
 export function CookieView() {
+  const t = useI18n()
   const { cookies, selectedCookie, filterDomain, setCookies, setSelectedCookie, setFilterDomain } = useCookieStore()
   const [isEditing, setIsEditing] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
@@ -119,13 +121,13 @@ export function CookieView() {
       <div className="flex items-center justify-between border-b px-4 py-2">
         <div className="flex items-center gap-2">
           <Cookie className="h-4 w-4 text-muted-foreground" />
-          <span className="text-xs font-medium">Cookie Manager</span>
+          <span className="text-xs font-medium">{t.cookieManager}</span>
           <span className="text-[10px] text-muted-foreground">({cookies.length})</span>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" className="h-7 text-xs" onClick={handleRefresh}>
             <RefreshCw className="h-3 w-3 mr-1" />
-            Refresh
+            {t.refresh}
           </Button>
           {filterDomain && (
             <Button
@@ -135,12 +137,12 @@ export function CookieView() {
               onClick={() => setClearConfirm(true)}
             >
               <Trash2 className="h-3 w-3 mr-1" />
-              Clear Domain
+              {t.clearDomain}
             </Button>
           )}
           <Button size="sm" className="h-7 text-xs" onClick={handleCreate}>
             <Plus className="h-3 w-3 mr-1" />
-            New Cookie
+            {t.newCookie}
           </Button>
         </div>
       </div>
@@ -151,14 +153,14 @@ export function CookieView() {
           <Search className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
           <Input
             className="h-7 text-xs flex-1"
-            placeholder="Search cookies..."
+            placeholder={t.searchCookies}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
         <Input
           className="h-7 text-xs w-48"
-          placeholder="Filter by domain..."
+          placeholder={t.filterByDomain}
           value={filterDomain}
           onChange={(e) => handleFilterDomain(e.target.value)}
         />
@@ -171,16 +173,16 @@ export function CookieView() {
           {filteredCookies.length === 0 ? (
             <EmptyState
               icon={Cookie}
-              title="No cookies found"
+              title={t.noCookiesFound}
               description={
                 filterDomain
-                  ? `No cookies found for domain "${filterDomain}".`
-                  : 'No browser cookies loaded. Click Refresh to fetch cookies.'
+                  ? t.noCookiesForDomain(filterDomain)
+                  : t.noCookiesLoaded
               }
               action={
                 <Button size="sm" className="h-7 text-xs" onClick={handleRefresh}>
                   <RefreshCw className="h-3 w-3 mr-1" />
-                  Refresh
+                  {t.refresh}
                 </Button>
               }
             />
@@ -214,9 +216,9 @@ export function CookieView() {
       <ConfirmDialog
         open={clearConfirm}
         onOpenChange={setClearConfirm}
-        title="Clear Domain Cookies"
-        description={`This will delete all cookies for "${filterDomain}". This action cannot be undone.`}
-        confirmLabel="Clear All"
+        title={t.clearDomainCookies}
+        description={t.clearDomainConfirm(filterDomain ?? '')}
+        confirmLabel={t.clearAll}
         variant="destructive"
         onConfirm={handleClearDomain}
       />

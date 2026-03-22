@@ -4,6 +4,7 @@ import type { KeyValuePair } from '@/shared/types/intercept-rule'
 import { MATCH_OPERATORS, HTTP_METHODS, MOCK_BODY_TYPES } from '@/shared/constants'
 import type { MatchOperator, HttpMethod, MockBodyType } from '@/shared/constants'
 import { useMockStore } from '../../stores/mock-store'
+import { useI18n } from '../../hooks/use-i18n'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
@@ -27,6 +28,7 @@ const bodyTypeToLanguage: Record<MockBodyType, EditorLanguage> = {
 }
 
 export function MockRuleEditor({ rule, onClose }: MockRuleEditorProps) {
+  const t = useI18n()
   const updateRule = useMockStore((s) => s.updateRule)
   const [draft, setDraft] = useState<MockRule>({ ...rule })
 
@@ -54,13 +56,13 @@ export function MockRuleEditor({ rule, onClose }: MockRuleEditorProps) {
   return (
     <div className="flex h-full flex-col border-l">
       <div className="flex items-center justify-between border-b px-4 py-3">
-        <h3 className="text-sm font-medium">Edit Mock</h3>
+        <h3 className="text-sm font-medium">{t.editMock}</h3>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" className="h-7 text-xs" onClick={onClose}>
-            Cancel
+            {t.cancel}
           </Button>
           <Button size="sm" className="h-7 text-xs" onClick={handleSave}>
-            Save
+            {t.save}
           </Button>
         </div>
       </div>
@@ -69,12 +71,12 @@ export function MockRuleEditor({ rule, onClose }: MockRuleEditorProps) {
         <div className="space-y-6 p-4">
           {/* Name */}
           <div className="space-y-2">
-            <Label className="text-xs">Rule Name</Label>
+            <Label className="text-xs">{t.ruleName}</Label>
             <Input
               className="h-8 text-xs"
               value={draft.name}
               onChange={(e) => setDraft({ ...draft, name: e.target.value })}
-              placeholder="My mock rule"
+              placeholder={t.mockRuleNamePlaceholder}
             />
           </div>
 
@@ -82,10 +84,10 @@ export function MockRuleEditor({ rule, onClose }: MockRuleEditorProps) {
 
           {/* Match Condition */}
           <div className="space-y-3">
-            <h4 className="text-xs font-medium">Match Condition</h4>
+            <h4 className="text-xs font-medium">{t.matchCondition}</h4>
 
             <div className="space-y-2">
-              <Label className="text-xs">Operator</Label>
+              <Label className="text-xs">{t.matchOperator}</Label>
               <Select
                 value={draft.match.operator}
                 onValueChange={(v) => updateMatch({ operator: v as MatchOperator })}
@@ -104,7 +106,7 @@ export function MockRuleEditor({ rule, onClose }: MockRuleEditorProps) {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-xs">URL Pattern</Label>
+              <Label className="text-xs">{t.urlPattern}</Label>
               <Input
                 className="h-8 text-xs font-mono"
                 value={draft.match.value}
@@ -114,7 +116,7 @@ export function MockRuleEditor({ rule, onClose }: MockRuleEditorProps) {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-xs">Methods (optional)</Label>
+              <Label className="text-xs">{t.httpMethodsLabel}</Label>
               <div className="flex flex-wrap gap-2">
                 {HTTP_METHODS.map((method) => (
                   <label key={method} className="flex items-center gap-1.5">
@@ -133,11 +135,11 @@ export function MockRuleEditor({ rule, onClose }: MockRuleEditorProps) {
 
           {/* Response Config */}
           <div className="space-y-3">
-            <h4 className="text-xs font-medium">Mock Response</h4>
+            <h4 className="text-xs font-medium">{t.mockResponse}</h4>
 
             <div className="flex gap-3">
               <div className="space-y-2 flex-1">
-                <Label className="text-xs">Status Code</Label>
+                <Label className="text-xs">{t.statusCode}</Label>
                 <Input
                   className="h-8 text-xs"
                   type="number"
@@ -146,7 +148,7 @@ export function MockRuleEditor({ rule, onClose }: MockRuleEditorProps) {
                 />
               </div>
               <div className="space-y-2 flex-1">
-                <Label className="text-xs">Delay (ms)</Label>
+                <Label className="text-xs">{t.delayMs}</Label>
                 <Input
                   className="h-8 text-xs"
                   type="number"
@@ -157,7 +159,7 @@ export function MockRuleEditor({ rule, onClose }: MockRuleEditorProps) {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-xs">Body Type</Label>
+              <Label className="text-xs">{t.bodyType}</Label>
               <Select
                 value={draft.response.bodyType}
                 onValueChange={(v) => updateResponse({ bodyType: v as MockBodyType })}
@@ -176,7 +178,7 @@ export function MockRuleEditor({ rule, onClose }: MockRuleEditorProps) {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-xs">Response Body</Label>
+              <Label className="text-xs">{t.responseBody}</Label>
               <CodeEditor
                 value={draft.response.body}
                 onChange={(v) => updateResponse({ body: v })}
@@ -186,12 +188,12 @@ export function MockRuleEditor({ rule, onClose }: MockRuleEditorProps) {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-xs">Response Headers</Label>
+              <Label className="text-xs">{t.responseHeaders}</Label>
               <KeyValueTable
                 items={draft.response.headers}
                 onChange={(headers: KeyValuePair[]) => updateResponse({ headers })}
-                keyPlaceholder="Header"
-                valuePlaceholder="Value"
+                keyPlaceholder={t.header}
+                valuePlaceholder={t.value}
               />
             </div>
           </div>

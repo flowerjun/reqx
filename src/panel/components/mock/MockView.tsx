@@ -3,6 +3,7 @@ import { useMockStore } from '../../stores/mock-store'
 import { useBackgroundPort } from '../../hooks/use-background-port'
 import { useRuleSync } from '../../hooks/use-rule-sync'
 import { useResizablePanel } from '../../hooks/use-resizable-panel'
+import { useI18n } from '../../hooks/use-i18n'
 import { MockRuleList } from './MockRuleList'
 import { MockRuleEditor } from './MockRuleEditor'
 import { EmptyState } from '../shared/EmptyState'
@@ -13,6 +14,7 @@ import { Label } from '../ui/label'
 import type { MockRule } from '@/shared/types/mock-rule'
 
 export function MockView() {
+  const t = useI18n()
   const { rules, enabled, editingRuleId, addRule, setEnabled, setEditingRuleId } = useMockStore()
   const { width: panelWidth, containerRef, handleMouseDown } = useResizablePanel(384, 320, 640)
   const { sendCommand } = useBackgroundPort()
@@ -62,12 +64,12 @@ export function MockView() {
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
             <Switch checked={enabled} onCheckedChange={handleToggle} className="scale-90" />
-            <Label className="text-xs font-medium">Mocking {enabled ? 'On' : 'Off'}</Label>
+            <Label className="text-xs font-medium">{t.mockingOnOff(enabled)}</Label>
           </div>
         </div>
         <Button size="sm" className="h-7 text-xs" onClick={handleAddRule}>
           <Plus className="h-3 w-3 mr-1" />
-          New Mock
+          {t.newMock}
         </Button>
       </div>
 
@@ -78,12 +80,12 @@ export function MockView() {
           {rules.length === 0 ? (
             <EmptyState
               icon={Database}
-              title="No mock rules"
-              description="Create rules to mock API responses with custom status codes, headers, and body."
+              title={t.noMockRules}
+              description={t.noMockRulesDescription}
               action={
                 <Button size="sm" className="h-7 text-xs" onClick={handleAddRule}>
                   <Plus className="h-3 w-3 mr-1" />
-                  Create Mock
+                  {t.createMock}
                 </Button>
               }
             />
