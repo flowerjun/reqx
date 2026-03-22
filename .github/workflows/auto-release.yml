@@ -44,6 +44,38 @@ jobs:
       - name: Create zip
         run: zip -r ${{ steps.meta.outputs.zip_name }} ReqX/
 
+      - name: Generate release notes from commits
+        id: notes
+        run: |
+          # 이전 태그 찾기 (없으면 전체 히스토리)
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+
+          if [ -n "$PREV_TAG" ]; then
+            RANGE="${PREV_TAG}..HEAD"
+          else
+            RANGE="HEAD"
+          fi
+
+          # 커밋 메시지에서 릴리스 노트 생성
+          {
+            echo "## Changes"
+            echo ""
+            git log $RANGE --pretty=format:"- %s" --no-merges | grep -v "^- Co-Authored-By" | while read -r line; do
+              echo "$line"
+            done
+            echo ""
+            echo ""
+            echo "## Details"
+            echo ""
+            git log $RANGE --pretty=format:"### %s%n%n%b" --no-merges | grep -v "^Co-Authored-By" | sed '/^$/N;/^\n$/d'
+            echo ""
+            echo "---"
+            echo ""
+            echo "**Full Changelog**: https://github.com/${{ github.repository }}/compare/${PREV_TAG:-$(git rev-list --max-parents=0 HEAD | head -1)}...${{ steps.meta.outputs.tag }}"
+          } > release-notes.md
+
+          cat release-notes.md
+
       - name: Delete existing draft with same tag (if any)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -58,5 +90,5 @@ jobs:
           gh release create "${{ steps.meta.outputs.tag }}" \
             --title "ReqX ${{ steps.meta.outputs.tag }}" \
             --draft \
-            --generate-notes \
+            --notes-file release-notes.md \
             "${{ steps.meta.outputs.zip_name }}"
